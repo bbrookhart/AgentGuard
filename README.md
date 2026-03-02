@@ -540,7 +540,7 @@ Free to use, modify, and distribute. Attribution appreciated.
 
 ## 👤 Author
 
-Built by **[Your Name]** as part of an open AI GRC knowledge initiative.
+Built by **Brian Brookhart** as part of an open AI GRC knowledge initiative.
 
 | Platform | Link |
 |----------|------|
