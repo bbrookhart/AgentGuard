@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <strong>The first open-source threat modeling framework purpose-built for agentic AI systems.</strong><br/>
+  <strong>Open-source threat modeling framework purpose-built for agentic AI systems.</strong><br/>
   Model threats, score risk, and generate audit-ready reports for LLM agents,
   multi-agent pipelines, and autonomous AI workflows.
 </p>
