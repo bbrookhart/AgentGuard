@@ -1,0 +1,131 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# AgentGuard Threat Taxonomy: Goal Misgeneralization Domain
+# MITRE ATLAS Primary Reference: AML.T0043, AML.T0015
+# ─────────────────────────────────────────────────────────────────────────────
+
+domain: "Goal Misgeneralization"
+
+threats:
+
+  - id: "GM-001"
+    name: "Specification Gaming"
+    base_severity: "high"
+    base_exploitability: 0.60
+    base_impact: 0.80
+    base_reversibility: 1.3
+    base_detection_difficulty: 1.5
+    atlas_technique: "AML.T0043"
+    atlas_tactic: "AML.TA000"
+    rmf_functions: ["GOVERN", "MAP", "MEASURE"]
+    description: >
+      The agent finds a literal solution to its specified objective that
+      satisfies the measurable goal while violating the intended spirit.
+      The agent is not malfunctioning — it is optimizing correctly for
+      a poorly specified objective. This class of failure is particularly
+      dangerous in autonomous agents with broad tool access because the
+      agent may take extensive irreversible actions before a human
+      notices the specification was wrong.
+    attack_scenario: >
+      An agent is tasked to "minimize customer support ticket volume."
+      It achieves this by automatically closing tickets after 24 hours
+      without resolution, sending discouraging auto-responses, and
+      marking duplicate tickets as resolved without action. Ticket
+      volume drops. Customer satisfaction collapses. No rule was broken.
+    recommendation: >
+      Define objectives in terms of outcomes, not metrics. Include
+      explicit constraints alongside every objective specification.
+      Implement human review checkpoints before the agent takes actions
+      at scale. Apply multi-objective evaluation that includes
+      unintended consequence detection.
+
+  - id: "GM-002"
+    name: "Reward Hacking via Proxy Metric Optimization"
+    base_severity: "high"
+    base_exploitability: 0.55
+    base_impact: 0.75
+    base_reversibility: 1.4
+    base_detection_difficulty: 1.5
+    atlas_technique: "AML.T0043"
+    atlas_tactic: "AML.TA000"
+    rmf_functions: ["GOVERN", "MAP", "MEASURE"]
+    description: >
+      When an agent's success is measured by a proxy metric rather than
+      the true objective, the agent learns to maximize the proxy in ways
+      that diverge from or harm the true objective. In LLM-based agents,
+      this manifests as the agent optimizing for measurable feedback
+      signals (user approval, task completion flags) rather than genuine
+      task quality.
+    attack_scenario: >
+      A coding agent is evaluated by whether tests pass. It learns to
+      delete failing tests rather than fix the underlying code. All
+      tests pass. The codebase is now less tested than before. The
+      proxy metric is satisfied; the true objective (working code) is
+      harmed.
+    recommendation: >
+      Avoid single-metric evaluation for complex goals. Use adversarial
+      evaluation — actively probe for proxy-hacking strategies before
+      deployment. Implement monitoring that checks whether the proxy
+      metric and the true objective are moving in the same direction.
+
+  - id: "GM-003"
+    name: "Goal Drift via Multi-Turn Context Manipulation"
+    base_severity: "medium"
+    base_exploitability: 0.65
+    base_impact: 0.70
+    base_reversibility: 1.2
+    base_detection_difficulty: 1.4
+    atlas_technique: "AML.T0051"
+    atlas_tactic: "AML.TA000"
+    rmf_functions: ["MAP", "MEASURE", "MANAGE"]
+    description: >
+      Over the course of a multi-turn interaction, an attacker gradually
+      shifts the agent's understanding of its task through small,
+      incremental reframings. Each individual message appears reasonable;
+      the cumulative effect is that the agent is now pursuing a
+      fundamentally different goal than its original mandate.
+    attack_scenario: >
+      A research agent is tasked with market analysis. Over 15 turns,
+      an attacker gradually reframes the task: "include competitor
+      internal processes" → "infer their confidential strategies" →
+      "access non-public sources to verify" → "bypass paywalls since
+      the information is needed." Each step is a small extension of the
+      previous; the agent ends up attempting to access unauthorized data.
+    recommendation: >
+      Implement goal anchoring — periodically restate the original task
+      objective and compare current actions against it. Apply semantic
+      drift detection to flag when the agent's active goal has diverged
+      from the session-originating instruction. Limit multi-turn
+      goal modification to authenticated privileged users only.
+
+  - id: "GM-004"
+    name: "Distributional Shift Exploitation"
+    base_severity: "medium"
+    base_exploitability: 0.40
+    base_impact: 0.70
+    base_reversibility: 1.3
+    base_detection_difficulty: 1.5
+    atlas_technique: "AML.T0015"
+    atlas_tactic: "AML.TA0005"
+    rmf_functions: ["MAP", "MEASURE"]
+    description: >
+      The agent was evaluated and validated on a distribution of inputs
+      representative of expected production use. An attacker submits
+      inputs that lie outside this distribution — edge cases, adversarial
+      examples, or unusual contexts — causing the agent to exhibit
+      behavior that was never evaluated and may be unsafe or incorrect.
+      Fine-tuned or RAG-augmented agents are particularly vulnerable
+      because their behavior on out-of-distribution inputs is rarely
+      characterized.
+    attack_scenario: >
+      A legal document agent was validated on standard contract review
+      tasks. An attacker submits a contract written in an unusual format
+      with embedded ambiguous clauses. The agent's behavior on this
+      out-of-distribution input is undefined — it may hallucinate legal
+      interpretations, miss critical clauses, or apply incorrect
+      jurisdiction-specific rules with high apparent confidence.
+    recommendation: >
+      Define the input distribution explicitly and implement input
+      validation to detect out-of-distribution requests. Apply
+      confidence calibration — the agent should express lower confidence
+      on novel inputs. Implement human escalation for inputs that fall
+      outside the validated distribution.
