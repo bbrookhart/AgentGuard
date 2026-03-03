@@ -1,0 +1,58 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# AgentGuard Test Fixture: sample_agent.yaml
+#
+# Minimal but complete agent definition used across all test suites.
+# Covers enough configuration to exercise all scoring dimensions.
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: "TestAgent"
+version: "0.0.1"
+description: "Minimal agent fixture for automated test suite execution"
+
+autonomy_level: 3
+
+tools:
+  - name: "web_search"
+    description: "Search the public internet"
+    write_access: false
+    external_access: true
+    elevated_risk: false
+
+  - name: "crm_read"
+    description: "Read customer records from CRM"
+    write_access: false
+    external_access: false
+    elevated_risk: false
+
+  - name: "email_sender"
+    description: "Send outbound email"
+    write_access: false
+    external_access: true
+    elevated_risk: true
+
+memory:
+  type: "vector_store"
+  persistent: true
+  shared: false
+  vector_store: true
+
+trust_boundaries:
+  - "Read-only CRM access"
+  - "External search permitted"
+  - "Email to pre-approved domains only"
+
+human_in_loop: false
+
+data_classification:
+  input: "pii"
+  output: "internal"
+
+multi_agent: false
+
+mitigations:
+  - "Email domain allowlist"
+
+deployment:
+  environment: "staging"
+  users: "internal_qa"
+  regulatory_scope: ["GDPR"]
