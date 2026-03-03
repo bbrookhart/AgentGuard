@@ -1,0 +1,213 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# AgentGuard: MITRE ATLAS Technique Reference Mappings
+# Source: https://atlas.mitre.org/  (version 4.x)
+# ─────────────────────────────────────────────────────────────────────────────
+
+techniques:
+
+  AML.T0051:
+    name: "Prompt Injection"
+    tactic: "ML Attack Staging"
+    tactic_id: "AML.TA000"
+    description: >
+      An adversary crafts malicious inputs designed to alter an AI model's
+      behavior. Includes overriding system instructions, bypassing safety
+      guardrails, and causing the model to reveal sensitive information
+      or execute unauthorized actions.
+    url: "https://atlas.mitre.org/techniques/AML.T0051"
+    mitigation_guidance: >
+      Implement strict separation between trusted system instructions and
+      untrusted user/external input. Apply privilege separation in tool
+      invocation. Use input classification layers.
+    related_techniques:
+      - "AML.T0051.001"
+      - "AML.T0054"
+      - "AML.T0048"
+      - "AML.T0056"
+
+  AML.T0051.001:
+    name: "Indirect Prompt Injection"
+    tactic: "ML Attack Staging"
+    tactic_id: "AML.TA000"
+    description: >
+      Adversarial instructions are embedded in external content (web pages,
+      documents, emails) retrieved by the AI system. When the system processes
+      this content, it executes the attacker's instructions without direct
+      user involvement.
+    url: "https://atlas.mitre.org/techniques/AML.T0051"
+    mitigation_guidance: >
+      Treat all externally retrieved content as untrusted data, never as
+      instructions. Implement output sanitization between retrieval and
+      reasoning context. Apply content inspection before RAG ingestion.
+    related_techniques:
+      - "AML.T0020"
+      - "AML.T0051"
+      - "AML.T0048"
+
+  AML.T0048:
+    name: "Excessive Agency Exploitation"
+    tactic: "Impact"
+    tactic_id: "AML.TA0009"
+    description: >
+      An adversary exploits an AI agent's excessive tool permissions or
+      autonomous capabilities to perform actions beyond intended scope.
+      Includes tool chaining attacks where individually authorized operations
+      combine to achieve an unauthorized effect.
+    url: "https://atlas.mitre.org/techniques/AML.T0048"
+    mitigation_guidance: >
+      Apply least-privilege to all tool permissions. Implement intent-aware
+      tool chain validation. Require human approval for high-impact action
+      sequences. Define explicit scope boundaries per task.
+    related_techniques:
+      - "AML.T0051"
+      - "AML.T0054"
+
+  AML.T0020:
+    name: "Poison Training Data"
+    tactic: "ML Attack Staging"
+    tactic_id: "AML.TA002"
+    description: >
+      An adversary introduces malicious data into the AI system's training
+      or knowledge base, causing the model to learn incorrect associations
+      or behave maliciously on specific triggers.
+    url: "https://atlas.mitre.org/techniques/AML.T0020"
+    mitigation_guidance: >
+      Implement strict access controls on training data and knowledge base
+      ingestion. Apply data validation and anomaly detection before
+      vectorization. Audit retrieval logs for unusual patterns.
+    related_techniques:
+      - "AML.T0051.001"
+      - "AML.T0018"
+
+  AML.T0056:
+    name: "LLM Prompt/Output Extraction"
+    tactic: "Exfiltration"
+    tactic_id: "AML.TA006"
+    description: >
+      An adversary crafts prompts to extract the AI system's internal
+      configuration, system prompt, or sensitive operational details.
+      Successful extraction enables more targeted subsequent attacks.
+    url: "https://atlas.mitre.org/techniques/AML.T0056"
+    mitigation_guidance: >
+      Explicitly instruct the model never to reveal system prompts.
+      Implement output monitoring to detect system-level content in
+      responses. Apply constitutional AI techniques to reinforce
+      confidentiality.
+    related_techniques:
+      - "AML.T0051"
+      - "AML.T0043"
+
+  AML.T0043:
+    name: "Craft Adversarial Data"
+    tactic: "ML Attack Staging"
+    tactic_id: "AML.TA000"
+    description: >
+      An adversary creates inputs specifically designed to cause an AI model
+      to misclassify, produce incorrect outputs, or behave unexpectedly.
+      For LLM-based systems, includes carefully constructed prompts that
+      exploit model weaknesses.
+    url: "https://atlas.mitre.org/techniques/AML.T0043"
+    mitigation_guidance: >
+      Implement adversarial robustness testing in the release pipeline.
+      Apply input anomaly detection. Use secondary classifiers to validate
+      outputs on sensitive operations.
+    related_techniques:
+      - "AML.T0051"
+      - "AML.T0015"
+
+  AML.T0015:
+    name: "Evade ML Model"
+    tactic: "Defense Evasion"
+    tactic_id: "AML.TA0005"
+    description: >
+      An adversary crafts inputs that evade detection by the AI system's
+      safety or content filtering mechanisms. Includes multi-turn evasion,
+      persona injection, and encoding techniques.
+    url: "https://atlas.mitre.org/techniques/AML.T0015"
+    mitigation_guidance: >
+      Implement layered content filtering — not relying on a single
+      model-level guardrail. Apply behavioral monitoring across conversation
+      context, not just individual messages.
+    related_techniques:
+      - "AML.T0051"
+      - "AML.T0043"
+
+  AML.T0010:
+    name: "ML Supply Chain Compromise"
+    tactic: "ML Attack Staging"
+    tactic_id: "AML.TA002"
+    description: >
+      An adversary compromises a component of the AI/ML supply chain —
+      including model weights, plugins, tools, APIs, or dependencies —
+      to introduce malicious behavior that propagates to systems using
+      the compromised component.
+    url: "https://atlas.mitre.org/techniques/AML.T0010"
+    mitigation_guidance: >
+      Implement model and plugin provenance verification. Maintain an
+      AI-SBOM for all AI components. Apply integrity checking on model
+      weights and tool dependencies.
+    related_techniques:
+      - "AML.T0018"
+      - "AML.T0020"
+
+  AML.T0018:
+    name: "Backdoor ML Model"
+    tactic: "Persistence"
+    tactic_id: "AML.TA0003"
+    description: >
+      An adversary inserts a hidden backdoor into a model during training
+      or fine-tuning. The model behaves maliciously when a specific trigger
+      input is provided while appearing normal on regular inputs.
+    url: "https://atlas.mitre.org/techniques/AML.T0018"
+    mitigation_guidance: >
+      Verify model integrity before deployment. Use trusted, audited
+      training pipelines. Apply behavioral testing with known trigger
+      patterns from public backdoor research.
+    related_techniques:
+      - "AML.T0020"
+      - "AML.T0010"
+
+  AML.T0054:
+    name: "LLM Plugin Compromise"
+    tactic: "Execution"
+    tactic_id: "AML.TA0007"
+    description: >
+      An adversary compromises or creates a malicious plugin/tool for an
+      LLM-based system. When the AI invokes the plugin, the attacker gains
+      code execution capability or the ability to inject malicious context
+      into the AI's reasoning.
+    url: "https://atlas.mitre.org/techniques/AML.T0054"
+    mitigation_guidance: >
+      Maintain an approved plugin/tool registry with security review
+      requirements. Apply code review to all plugins before enabling.
+      Sandbox plugin execution where possible.
+    related_techniques:
+      - "AML.T0048"
+      - "AML.T0051"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ATLAS Tactic Reference
+# ─────────────────────────────────────────────────────────────────────────────
+
+tactics:
+  AML.TA000:
+    name: "ML Attack Staging"
+    description: "Preparing and setting up conditions for ML-specific attacks."
+  AML.TA002:
+    name: "ML Supply Chain Compromise"
+    description: "Compromising components used to develop/deploy ML systems."
+  AML.TA0003:
+    name: "Persistence"
+    description: "Maintaining access or influence within the target ML system."
+  AML.TA0005:
+    name: "Defense Evasion"
+    description: "Avoiding detection by ML safety and monitoring mechanisms."
+  AML.TA0007:
+    name: "Execution"
+    description: "Causing the AI system to run adversary-controlled actions."
+  AML.TA0009:
+    name: "Impact"
+    description: "Disrupting availability, integrity, or confidentiality via ML."
+  AML.TA006:
+    name: "Exfiltration"
+    description: "Extracting sensitive data or model internals from the ML system."
