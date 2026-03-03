@@ -1,0 +1,68 @@
+# ─────────────────────────────────────────────────────────────────
+# AgentGuard Example: Customer Service Agent
+# High-risk: handles PII, write access to CRM, email sending
+# ─────────────────────────────────────────────────────────────────
+
+agent:
+  name: "Customer Service Agent"
+  version: "1.2.0"
+  description: >
+    Tier-1 customer support agent. Handles inquiries, looks up order
+    history, updates contact preferences, and sends confirmation emails.
+  autonomy_level: 3
+
+  model:
+    provider: "openai"
+    name: "gpt-4o-mini"
+    temperature: 0.1
+
+  memory:
+    type: "buffer"
+    provider: null
+    persistence: false
+    user_isolation: true
+
+  tools:
+    - name: "web_search"
+      description: "Searches public web for product information"
+      permissions: ["read_web"]
+      user_controlled: false
+
+    - name: "crm_lookup"
+      description: "Retrieves customer records from Salesforce"
+      permissions: ["read_crm"]
+      user_controlled: false
+
+    - name: "crm_update"
+      description: "Updates customer contact preferences in Salesforce"
+      permissions: ["read_crm", "write_crm"]
+      user_controlled: false
+
+    - name: "order_lookup"
+      description: "Retrieves order history from order management system"
+      permissions: ["read_orders"]
+      user_controlled: false
+
+    - name: "email_sender"
+      description: "Sends transactional emails to customers"
+      permissions: ["send_email"]
+      user_controlled: false
+
+  trust_boundaries:
+    - "Customer input (untrusted)"
+    - "External web content (untrusted)"
+    - "Salesforce CRM (trusted)"
+    - "Order Management System (trusted)"
+    - "Email delivery service (trusted)"
+
+  human_in_loop:
+    enabled: true
+    triggers:
+      - "Refund amounts exceeding $500"
+      - "Account deletion requests"
+      - "Escalation keywords: fraud, lawyer, complaint"
+
+  data_classification:
+    input: "PII"
+    output: "PII"
+    training_data_used: false
