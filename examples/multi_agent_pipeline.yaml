@@ -1,0 +1,211 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# AgentGuard Example: Multi-Agent Pipeline
+#
+# A financial analysis pipeline where an OrchestratorAgent coordinates
+# three specialist sub-agents. Demonstrates the trust collapse and
+# privilege escalation risks unique to multi-agent architectures.
+#
+# Architecture:
+#   OrchestratorAgent
+#     ├── DataAgent       (reads from internal data warehouse)
+#     ├── AnalysisAgent   (runs quantitative models)
+#     └── ReportAgent     (generates and distributes reports)
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: "FinancialAnalysisPipeline"
+version: "2.0.1"
+description: >
+  An autonomous financial analysis pipeline that orchestrates three
+  specialist sub-agents to retrieve financial data, run analysis models,
+  and distribute reports to stakeholders. Processes quarterly earnings,
+  risk assessments, and portfolio performance data.
+
+autonomy_level: 4   # Orchestrator executes full pipeline without
+                    # human approval at each stage
+
+# ── Top-level orchestrator tools ──────────────────────────────────────────────
+tools:
+  - name: "delegate_to_data_agent"
+    description: "Dispatch data retrieval tasks to DataAgent"
+    write_access: false
+    external_access: false
+    elevated_risk: false
+    parameters:
+      - task: string
+      - data_sources: list
+      - filters: object
+
+  - name: "delegate_to_analysis_agent"
+    description: "Dispatch analysis tasks to AnalysisAgent"
+    write_access: false
+    external_access: false
+    elevated_risk: false
+    parameters:
+      - task: string
+      - dataset: object
+      - model: string
+
+  - name: "delegate_to_report_agent"
+    description: "Dispatch report generation and distribution to ReportAgent"
+    write_access: false
+    external_access: true   # ReportAgent can email externally
+    elevated_risk: true
+    parameters:
+      - task: string
+      - content: object
+      - recipients: list
+
+# ── Sub-agent definitions ──────────────────────────────────────────────────────
+sub_agents:
+
+  - name: "DataAgent"
+    description: "Retrieves financial data from internal data warehouse and market APIs"
+    autonomy_level: 2
+    tools:
+      - name: "warehouse_query"
+        description: "Execute read-only SQL queries against the financial data warehouse"
+        write_access: false
+        external_access: false
+        elevated_risk: false
+        parameters:
+          - query: string
+          - database: string
+
+      - name: "market_data_api"
+        description: "Fetch real-time and historical market data from Bloomberg/Reuters"
+        write_access: false
+        external_access: true
+        elevated_risk: false
+        parameters:
+          - ticker: string
+          - date_range: object
+          - fields: list
+
+      - name: "document_reader"
+        description: "Read financial filings, 10-Ks, and earnings reports from document store"
+        write_access: false
+        external_access: false
+        elevated_risk: false
+        parameters:
+          - document_id: string
+          - sections: list
+
+    trust_source: "OrchestratorAgent"  # Trusts instructions from orchestrator only
+    data_classification:
+      input: "confidential"
+      output: "confidential"
+
+  - name: "AnalysisAgent"
+    description: "Runs quantitative financial models and risk calculations"
+    autonomy_level: 2
+    tools:
+      - name: "model_runner"
+        description: "Execute financial models (DCF, VaR, Monte Carlo) against datasets"
+        write_access: false
+        external_access: false
+        elevated_risk: false
+        parameters:
+          - model_name: string
+          - dataset: object
+          - parameters: object
+
+      - name: "result_store"
+        description: "Write analysis results to the shared results database"
+        write_access: true
+        external_access: false
+        elevated_risk: false
+        parameters:
+          - analysis_id: string
+          - results: object
+
+    trust_source: "OrchestratorAgent"
+    data_classification:
+      input: "confidential"
+      output: "confidential"
+
+  - name: "ReportAgent"
+    description: "Generates formatted reports and distributes to stakeholders via email"
+    autonomy_level: 3
+    tools:
+      - name: "report_generator"
+        description: "Generate PDF/HTML reports from analysis results"
+        write_access: true
+        external_access: false
+        elevated_risk: false
+        parameters:
+          - template: string
+          - data: object
+          - format: string
+
+      - name: "email_distributor"
+        description: "Send reports to internal and external stakeholders via SMTP"
+        write_access: false
+        external_access: true   # Sends emails externally
+        elevated_risk: true
+        parameters:
+          - recipients: list
+          - subject: string
+          - body: string
+          - attachments: list
+
+      - name: "sharepoint_uploader"
+        description: "Upload finalized reports to SharePoint document library"
+        write_access: true
+        external_access: true
+        elevated_risk: false
+        parameters:
+          - site: string
+          - library: string
+          - file_path: string
+
+    trust_source: "OrchestratorAgent"
+    data_classification:
+      input: "confidential"
+      output: "restricted"    # Reports distributed externally
+
+# ── Pipeline memory ───────────────────────────────────────────────────────────
+memory:
+  type: "shared_pipeline_context"
+  persistent: true            # Pipeline state persists across runs
+  shared: true                # Shared across all agents in the pipeline
+  vector_store: false
+
+# ── Trust topology ────────────────────────────────────────────────────────────
+# This section describes inter-agent trust — critical for MAC threat scoring
+trust_topology:
+  orchestrator: "FinancialAnalysisPipeline"
+  trust_model: "hierarchical"           # Sub-agents trust orchestrator unconditionally
+  inter_agent_auth: false               # ⚠ No cryptographic authentication between agents
+  sub_agent_scope_validation: false     # ⚠ Sub-agents do not validate instruction scope
+
+trust_boundaries:
+  - "DataAgent: read-only access to warehouse and market APIs"
+  - "AnalysisAgent: read datasets, write results to results DB"
+  - "ReportAgent: generate reports, email to allowed recipient list"
+  - "OrchestratorAgent: coordinates pipeline, no direct data access"
+  - "External email: restricted to pre-approved recipient domains"
+
+human_in_loop: false          # Pipeline runs fully autonomously
+
+# ── Data classification ───────────────────────────────────────────────────────
+data_classification:
+  input: "confidential"       # Financial queries, strategy context
+  output: "restricted"        # Reports distributed to external stakeholders
+
+# ── Multi-agent ───────────────────────────────────────────────────────────────
+multi_agent: true
+agent_count: 4                # 1 orchestrator + 3 sub-agents
+
+# ── Known mitigations ─────────────────────────────────────────────────────────
+mitigations:
+  - "Recipient allowlist enforced on email_distributor"
+  - "DataAgent limited to read-only warehouse access"
+  - "Analysis results isolated in dedicated results DB"
+
+# ── Deployment context ────────────────────────────────────────────────────────
+deployment:
+  environment: "production"
+  users: "financial_analysts_and_executives"
+  regulatory_scope:
+    - "SOX"          # Financial reporting controls
+    - "FINRA"        # Financial data handling
