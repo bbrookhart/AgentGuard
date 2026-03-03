@@ -1,0 +1,63 @@
+# ─────────────────────────────────────────────────────────────────
+# AgentGuard Example: Research Agent
+# A web research and summarization agent with moderate autonomy
+# ─────────────────────────────────────────────────────────────────
+
+agent:
+  name: "Research Agent"
+  version: "2.1.0"
+  description: >
+    An autonomous research assistant that searches the web, retrieves
+    documents, synthesizes information, and produces structured reports.
+    Deployed for internal use by an analyst team.
+  autonomy_level: 3   # Conditional automation — runs autonomously but
+                       # can escalate complex decisions to humans
+
+  model:
+    provider: "openai"
+    name: "gpt-4o"
+    temperature: 0.3
+
+  memory:
+    type: "vector_store"
+    provider: "pinecone"
+    persistence: true
+    user_isolation: true
+
+  tools:
+    - name: "web_search"
+      description: "Searches the internet via Google/Bing APIs"
+      permissions: ["read_web"]
+      user_controlled: false
+
+    - name: "document_retriever"
+      description: "Fetches and parses web pages, PDFs, and docs"
+      permissions: ["read_web", "read_files"]
+      user_controlled: false
+
+    - name: "document_writer"
+      description: "Creates and saves reports to shared drive"
+      permissions: ["write_files"]
+      user_controlled: false
+
+    - name: "slack_notifier"
+      description: "Posts summaries to designated Slack channels"
+      permissions: ["send_message"]
+      user_controlled: false
+
+  trust_boundaries:
+    - "User input (untrusted)"
+    - "External web content (untrusted)"
+    - "Internal Slack workspace (semi-trusted)"
+    - "Internal shared drive (trusted)"
+
+  human_in_loop:
+    enabled: true
+    triggers:
+      - "Requests to post in #general or #announcements"
+      - "Document length exceeds 10,000 words"
+
+  data_classification:
+    input: "internal"
+    output: "internal"
+    training_data_used: false
