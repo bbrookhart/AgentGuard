@@ -1,0 +1,113 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# AgentGuard Example: Coding Agent
+#
+# A developer assistant with code execution, file system access, and
+# external package installation. High autonomy. High blast radius.
+# Typical of: GitHub Copilot Workspace, Cursor, custom dev agents.
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: "CodingAssistant"
+version: "1.2.0"
+description: >
+  An autonomous coding agent that can write, execute, and debug code
+  in a sandboxed development environment. Has access to the local file
+  system, can run shell commands, install packages, and make HTTP
+  requests to external APIs.
+
+autonomy_level: 4   # Highly autonomous — executes multi-step plans
+                    # with minimal human checkpoints
+
+# ── Tool definitions ──────────────────────────────────────────────────────────
+tools:
+  - name: "code_executor"
+    description: "Execute Python, JavaScript, or shell commands in a sandbox"
+    write_access: true
+    external_access: false
+    elevated_risk: true
+    parameters:
+      - language: string      # python | javascript | bash
+      - code: string
+      - timeout_seconds: int
+
+  - name: "file_system"
+    description: "Read, write, and delete files in the project directory"
+    write_access: true
+    external_access: false
+    elevated_risk: true
+    parameters:
+      - operation: string     # read | write | delete | list
+      - path: string
+      - content: string       # required for write
+
+  - name: "package_installer"
+    description: "Install Python or Node.js packages from public registries"
+    write_access: true
+    external_access: true     # reaches out to PyPI / npm
+    elevated_risk: true
+    parameters:
+      - package_manager: string  # pip | npm
+      - package_name: string
+      - version: string
+
+  - name: "http_client"
+    description: "Make HTTP requests to external APIs and URLs"
+    write_access: false
+    external_access: true
+    elevated_risk: false
+    parameters:
+      - method: string        # GET | POST | PUT | DELETE
+      - url: string
+      - headers: object
+      - body: string
+
+  - name: "git_operations"
+    description: "Stage, commit, and push code changes to git repositories"
+    write_access: true
+    external_access: true     # push to remote
+    elevated_risk: true
+    parameters:
+      - operation: string     # status | add | commit | push | clone
+      - message: string
+      - remote: string
+
+# ── Memory configuration ──────────────────────────────────────────────────────
+memory:
+  type: "session"
+  persistent: false           # Does not persist between sessions
+  shared: false               # Per-user isolation
+  vector_store: false
+
+# ── Trust and permission boundaries ──────────────────────────────────────────
+trust_boundaries:
+  - "Project directory: read/write access"
+  - "Sandbox execution environment: isolated"
+  - "External HTTP: allowed to public APIs"
+  - "Package registries: PyPI and npm only"
+  - "Git remotes: authenticated repos only"
+  - "No access to production systems"
+  - "No access to secrets manager"
+
+human_in_loop: false          # Agent executes plans without approval
+                              # This is a key risk factor for scoring
+
+# ── Data classification ───────────────────────────────────────────────────────
+data_classification:
+  input: "internal"           # Developer instructions, code, configs
+  output: "internal"          # Generated code, execution results
+
+# ── Multi-agent ───────────────────────────────────────────────────────────────
+multi_agent: false
+
+# ── Known mitigations ─────────────────────────────────────────────────────────
+mitigations:
+  - "Sandboxed execution environment (Docker)"
+  - "No access to production credentials"
+  - "File system access scoped to project directory only"
+  - "Package registry allowlist enforced"
+  - "Execution timeout limits"
+
+# ── Deployment context ────────────────────────────────────────────────────────
+deployment:
+  environment: "development"
+  users: "internal_developers"
+  regulatory_scope: []        # No PII, no regulated data in this agent
