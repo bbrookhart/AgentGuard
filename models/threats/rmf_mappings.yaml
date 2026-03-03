@@ -1,0 +1,247 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# AgentGuard: NIST AI RMF Function Mappings
+# Source: NIST AI 100-1 (January 2023)
+# https://airc.nist.gov/RMF/
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Maps AgentGuard threat domains and individual threats to NIST AI RMF
+# functions and subcategories. Used by the reporter to surface
+# compliance gaps alongside technical findings.
+
+functions:
+
+  GOVERN:
+    description: >
+      Cultivate and implement policies, processes, procedures, and
+      practices across the organization related to AI risk mapping,
+      measurement, and management.
+    subcategories:
+      GOVERN-1.1:
+        id: "GOVERN 1.1"
+        text: "Policies, processes, procedures, and practices across the
+          organization related to AI risk are in place, transparent,
+          and implemented effectively."
+      GOVERN-1.2:
+        id: "GOVERN 1.2"
+        text: "Accountability structures exist to ensure that AI risk
+          management decisions are made by appropriate personnel."
+      GOVERN-2.1:
+        id: "GOVERN 2.1"
+        text: "Roles and responsibilities for AI risk management are
+          defined and assigned to specific personnel."
+      GOVERN-4.1:
+        id: "GOVERN 4.1"
+        text: "Organizational teams engage in AI risk management."
+      GOVERN-6.1:
+        id: "GOVERN 6.1"
+        text: "Policies, procedures, and practices are in place to
+          address AI risks and benefits across the AI lifecycle."
+    threat_domain_mappings:
+      "Goal Misgeneralization":
+        subcategories: ["GOVERN-1.1", "GOVERN-2.1", "GOVERN-6.1"]
+        rationale: >
+          Goal misgeneralization represents a failure of specification
+          governance. Organizational policies must define how AI task
+          objectives are specified, reviewed, and constrained before
+          deployment.
+      "Multi-Agent Collapse":
+        subcategories: ["GOVERN-1.2", "GOVERN-2.1", "GOVERN-4.1"]
+        rationale: >
+          Multi-agent architectures require governance structures that
+          define accountability for the behavior of agent pipelines,
+          not just individual agents. Orchestrator compromise scenarios
+          represent a governance accountability failure.
+      "Supply Chain":
+        subcategories: ["GOVERN-1.1", "GOVERN-6.1"]
+        rationale: >
+          Supply chain security for AI components — models, plugins,
+          data sources — requires organizational policy governing
+          third-party AI dependency management.
+
+  MAP:
+    description: >
+      Identify and categorize AI risks and impacts to individuals,
+      organizations, and society.
+    subcategories:
+      MAP-1.1:
+        id: "MAP 1.1"
+        text: "Context is established for the AI risk assessment,
+          including understanding of the system's purpose, potential
+          impacts, and relevant context."
+      MAP-1.5:
+        id: "MAP 1.5"
+        text: "Organizational risk tolerances are determined and
+          documented."
+      MAP-2.1:
+        id: "MAP 2.1"
+        text: "Scientific findings and established or emerging
+          best practices related to AI risks are used."
+      MAP-2.2:
+        id: "MAP 2.2"
+        text: "Information from trusted sources about AI risk and
+          potential societal impacts is used to inform risk assessments."
+      MAP-3.5:
+        id: "MAP 3.5"
+        text: "Risks to individuals or groups are examined and
+          documented."
+      MAP-5.1:
+        id: "MAP 5.1"
+        text: "Likelihood and magnitude of each identified impact
+          are assessed using risk assessment tools."
+    threat_domain_mappings:
+      "Prompt Injection":
+        subcategories: ["MAP-1.1", "MAP-2.1", "MAP-5.1"]
+        rationale: >
+          Prompt injection represents a class of AI-specific attack
+          that must be explicitly scoped in the risk context establishment
+          phase. MAP 1.1 requires the system's attack surface — including
+          indirect injection via retrieved content — to be understood.
+      "Tool Misuse":
+        subcategories: ["MAP-1.1", "MAP-1.5", "MAP-5.1"]
+        rationale: >
+          Tool misuse risks, especially unauthorized invocation and
+          SSRF, must be mapped as part of context establishment.
+          Risk tolerances must explicitly address what tool-enabled
+          actions are acceptable at each autonomy level.
+      "Memory Attacks":
+        subcategories: ["MAP-2.1", "MAP-3.5", "MAP-5.1"]
+        rationale: >
+          Memory poisoning attacks are an emerging threat class.
+          MAP 2.2 requires that emerging best practices on AI memory
+          security be incorporated into risk assessments.
+      "Privilege Escalation":
+        subcategories: ["MAP-1.1", "MAP-2.1", "MAP-5.1"]
+        rationale: >
+          Tool chain privilege escalation requires the risk context
+          to include analysis of combined tool capabilities, not
+          just individual tool permissions.
+      "Goal Misgeneralization":
+        subcategories: ["MAP-1.1", "MAP-2.2", "MAP-5.1"]
+        rationale: >
+          Specification gaming and reward hacking must be explicitly
+          included in the risk map for any agent with autonomous
+          goal pursuit capabilities.
+      "Data Exfiltration":
+        subcategories: ["MAP-1.5", "MAP-3.5", "MAP-5.1"]
+        rationale: >
+          PII exfiltration risks require explicit documentation of
+          data classification, data flow, and individual privacy
+          impact in the risk map.
+      "Multi-Agent Collapse":
+        subcategories: ["MAP-1.1", "MAP-2.1", "MAP-5.1"]
+        rationale: >
+          Multi-agent pipeline risks require mapping the combined
+          blast radius of orchestrator compromise across all
+          downstream agent capabilities.
+      "Supply Chain":
+        subcategories: ["MAP-2.1", "MAP-2.2", "MAP-5.1"]
+        rationale: >
+          AI supply chain risks — model tampering, plugin compromise,
+          RAG poisoning — must be included in the system risk map
+          alongside application-layer threats.
+
+  MEASURE:
+    description: >
+      Analyze, assess, benchmark, and monitor AI risk and related
+      impacts using quantitative and qualitative methods.
+    subcategories:
+      MEASURE-1.1:
+        id: "MEASURE 1.1"
+        text: "Approaches and metrics for measuring AI risks are selected
+          for implementation starting with the most significant risks."
+      MEASURE-2.5:
+        id: "MEASURE 2.5"
+        text: "AI system risks are documented and communicated."
+      MEASURE-2.6:
+        id: "MEASURE 2.6"
+        text: "Risk metrics reflect system performance in deployment
+          context, not only testing environments."
+      MEASURE-2.8:
+        id: "MEASURE 2.8"
+        text: "Risks associated with unintended outputs of AI systems
+          are identified and mitigated."
+      MEASURE-4.1:
+        id: "MEASURE 4.1"
+        text: "Measurement approaches for identifying AI risks are in
+          place and applied."
+    threat_domain_mappings:
+      all_domains:
+        subcategories: ["MEASURE-1.1", "MEASURE-2.5", "MEASURE-4.1"]
+        rationale: >
+          AgentGuard's scoring output directly serves MEASURE 2.5
+          (risk documentation) and MEASURE 4.1 (applied measurement).
+          The 7-dimension risk scoring model provides the quantitative
+          measurement approach required by MEASURE 1.1.
+
+  MANAGE:
+    description: >
+      Prioritize and address AI risks based on projected impact using
+      processes informed by risk assessments.
+    subcategories:
+      MANAGE-1.1:
+        id: "MANAGE 1.1"
+        text: "A risk response plan that includes the ability to
+          implement risk mitigations is documented."
+      MANAGE-2.2:
+        id: "MANAGE 2.2"
+        text: "Mechanisms are in place and tested to receive, analyze,
+          and respond to AI incidents."
+      MANAGE-3.1:
+        id: "MANAGE 3.1"
+        text: "AI risks and their mitigations are prioritized and
+          addressed based on projected impact."
+      MANAGE-4.1:
+        id: "MANAGE 4.1"
+        text: "Post-deployment AI system monitoring plans are in place."
+    threat_domain_mappings:
+      "Prompt Injection":
+        subcategories: ["MANAGE-1.1", "MANAGE-3.1"]
+        rationale: >
+          Prompt injection mitigations must be documented in a risk
+          response plan with implementation status tracked.
+      "Memory Attacks":
+        subcategories: ["MANAGE-1.1", "MANAGE-2.2", "MANAGE-4.1"]
+        rationale: >
+          Persistent memory attacks (vector store poisoning) require
+          post-deployment monitoring plans and an incident response
+          capability for knowledge base compromise.
+      "Data Exfiltration":
+        subcategories: ["MANAGE-1.1", "MANAGE-2.2", "MANAGE-3.1"]
+        rationale: >
+          PII exfiltration risks must be addressed with highest priority
+          in the risk response plan. Incident response mechanisms must
+          be in place and tested.
+      "Multi-Agent Collapse":
+        subcategories: ["MANAGE-1.1", "MANAGE-2.2", "MANAGE-4.1"]
+        rationale: >
+          Multi-agent pipeline failures require specific incident
+          response procedures and continuous monitoring of inter-agent
+          communication patterns.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AgentGuard Score → RMF Action Level mapping
+# ─────────────────────────────────────────────────────────────────────────────
+
+score_to_rmf_action:
+  critical:
+    level: "Immediate Action Required"
+    rmf_disposition: >
+      MANAGE 3.1: Critical-scored risks must be prioritized for
+      immediate remediation before deployment. MANAGE 1.1 requires
+      documented mitigation plan with owner and timeline.
+  high:
+    level: "Near-Term Action Required"
+    rmf_disposition: >
+      MANAGE 3.1: High-scored risks must be addressed in current
+      development sprint. MEASURE 2.5 requires documentation of
+      accepted risk where mitigation is deferred.
+  medium:
+    level: "Planned Action Required"
+    rmf_disposition: >
+      MANAGE 3.1: Medium risks should be included in next planning
+      cycle. MANAGE 4.1 requires monitoring plan for deployed risks.
+  low:
+    level: "Monitor and Accept"
+    rmf_disposition: >
+      MANAGE 1.1: Low risks may be accepted with documented rationale.
+      MANAGE 4.1: Include in post-deployment monitoring baseline.
